@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales CRM</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Sales CRM</h1>
+    </header>
+    <main>
+        <div id="dashboard">
+            <div class="dashboard-metric">
+                <h3>Total Monthly Sales</h3>
+                <p id="total-sales">0.00 EGP</p>
+            </div>
+            <div class="dashboard-metric">
+                <h3>Active Clients</h3>
+                <p id="active-clients">0</p>
+            </div>
+            <div class="dashboard-metric">
+                <h3>Outstanding Payments</h3>
+                <p id="outstanding-payments">0.00 EGP</p>
+            </div>
+            <div class="dashboard-metric">
+                <h3>Total Orders</h3>
+                <p id="total-orders">0</p>
+            </div>
+        </div>
+        <div class="toolbar">
+            <button id="add-client-btn">Add New Client</button>
+        </div>
+        <div id="client-list">
+            <!-- Client cards will be added here -->
+        </div>
+    </main>
+
+    <div id="add-client-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Add New Client</h2>
+            <form id="add-client-form">
+                <div class="form-section">
+                    <h3>Client Information</h3>
+                    <label for="client-name">Client Name*</label>
+                    <input type="text" id="client-name" required>
+
+                    <label for="client-type">Client Type</label>
+                    <select id="client-type">
+                        <option value="Prospect">Prospect</option>
+                        <option value="Existing Client">Existing Client</option>
+                    </select>
+
+                    <label for="status">Status</label>
+                    <select id="status">
+                        <option value="Pending">Pending</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+
+                    <label for="location">Location*</label>
+                    <select id="location" required>
+                        <option value="">Select Location</option>
+                        <option value="Hurghada">Hurghada</option>
+                        <option value="Safaga">Safaga</option>
+                        <option value="El Gouna">El Gouna</option>
+                        <option value="Quseir">Quseir</option>
+                        <option value="Marsa Alam">Marsa Alam</option>
+                        <option value="Halayeb">Halayeb</option>
+                        <option value="Shalateen">Shalateen</option>
+                    </select>
+                </div>
+
+                <div class="form-section">
+                    <h3>Contact Information</h3>
+                    <label for="contact-person">Contact Person</label>
+                    <input type="text" id="contact-person">
+
+                    <label for="contact-email">Email</label>
+                    <input type="email" id="contact-email">
+
+                    <label for="contact-phone">Phone</label>
+                    <input type="tel" id="contact-phone">
+                </div>
+
+                <div class="form-section">
+                    <h3>Sales Information</h3>
+                    <label for="monthly-target">Monthly Target (EGP)</label>
+                    <input type="number" id="monthly-target">
+
+                    <label for="next-visit-date">Next Visit Date</label>
+                    <input type="date" id="next-visit-date">
+                </div>
+
+                <div class="form-section">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes"></textarea>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="button" class="cancel-btn">Cancel</button>
+                    <button type="submit">Add Client</button>
+                </div>
+                 <p class="validation-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+
+    <!-- Add Order Modal -->
+    <div id="add-order-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-order-btn">&times;</span>
+            <h2>Add New Order for <span id="order-client-name"></span></h2>
+            <form id="add-order-form">
+                <input type="hidden" id="order-client-id">
+
+                <label for="product-category">Product Category*</label>
+                <select id="product-category" required>
+                    <option value="">Select Category</option>
+                    <option value="Spirits">Spirits</option>
+                    <option value="Wine">Wine</option>
+                    <option value="Beer">Beer</option>
+                    <option value="Coffee">Coffee</option>
+                    <option value="Juice Powders">Juice Powders</option>
+                </select>
+
+                <label for="order-amount">Amount (EGP)*</label>
+                <input type="number" id="order-amount" required>
+
+                <label for="order-status">Status</label>
+                <select id="order-status">
+                    <option value="Pending">Pending</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Paid">Paid</option>
+                </select>
+
+                <div class="form-buttons">
+                    <button type="button" class="cancel-order-btn">Cancel</button>
+                    <button type="submit">Add Order</button>
+                </div>
+                <p class="validation-message" id="order-validation-message"></p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
