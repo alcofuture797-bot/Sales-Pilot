@@ -8,7 +8,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const validationMessage = document.querySelector('.validation-message');
 
     let clients = [];
+    let orders = [];
+    const apiUrl = 'http://localhost:3000/api';
 
+    // --- Data Fetching ---
+    async function loadData() {
+        try {
+            const [clientsRes, ordersRes] = await Promise.all([
+                fetch(`${apiUrl}/clients`),
+                fetch(`${apiUrl}/orders`)
+            ]);
+            clients = await clientsRes.json();
+            orders = await ordersRes.json();
+            renderAll();
+        } catch (error) {
+            console.error('Failed to load data:', error);
+        }
+    }
+
+    // --- Modals ---
     const openModal = () => modal.style.display = 'block';
     const closeModal = () => {
         modal.style.display = 'none';
@@ -33,8 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderClientName = document.getElementById('order-client-name');
     const orderClientIdInput = document.getElementById('order-client-id');
 
-    let orders = [];
-
     const openOrderModal = (clientId) => {
         const client = clients.find(c => c.id === clientId);
         if (client) {
@@ -53,30 +69,77 @@ document.addEventListener('DOMContentLoaded', () => {
     closeOrderBtn.addEventListener('click', closeOrderModal);
     cancelOrderBtn.addEventListener('click', closeOrderModal);
 
-    addOrderForm.addEventListener('submit', (event) => {
+    // --- Form Submissions ---
+    addClientForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        const clientName = document.getElementById('client-name').value.trim();
+        if (!clientName) {
+            validationMessage.textContent = 'Client Name is required.';
+            return;
+        }
 
+        const clientData = {
+            name: clientName,
+            type: document.getElementById('client-type').value,
+            status: document.getElementById('status').value,
+            location: document.getElementById('location').value,
+            contactPerson: document.getElementById('contact-person').value,
+            email: document.getElementById('contact-email').value,
+            phone: document.getElementById('contact-phone').value,
+            target: document.getElementById('monthly-target').value,
+            nextVisit: document.getElementById('next-visit-date').value,
+            notes: document.getElementById('notes').value,
+        };
+
+        try {
+            const response = await fetch(`${apiUrl}/clients`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(clientData)
+            });
+            const newClient = await response.json();
+            clients.push(newClient);
+            renderAll();
+            closeModal();
+        } catch (error) {
+            console.error('Failed to add client:', error);
+            validationMessage.textContent = 'Failed to add client. Please try again.';
+        }
+    });
+
+    addOrderForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
         const category = document.getElementById('product-category').value;
         const amount = document.getElementById('order-amount').value;
-
         if (!category || !amount) {
             orderValidationMessage.textContent = 'Product Category and Amount are required.';
             return;
         }
 
-        const newOrder = {
-            id: Date.now(),
+        const orderData = {
             clientId: parseInt(orderClientIdInput.value),
             category,
             amount,
             status: document.getElementById('order-status').value
         };
 
-        orders.push(newOrder);
-        renderAll();
-        closeOrderModal();
+        try {
+            const response = await fetch(`${apiUrl}/orders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+            const newOrder = await response.json();
+            orders.push(newOrder);
+            renderAll();
+            closeOrderModal();
+        } catch (error) {
+            console.error('Failed to add order:', error);
+            orderValidationMessage.textContent = 'Failed to add order. Please try again.';
+        }
     });
 
+    // --- Rendering ---
     function updateDashboard() {
         const totalSales = orders.reduce((sum, order) => sum + parseFloat(order.amount), 0);
         const activeClients = clients.filter(client => client.status === 'Active').length;
@@ -90,40 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('outstanding-payments').textContent = `${outstandingPayments.toFixed(2)} EGP`;
         document.getElementById('total-orders').textContent = totalOrders;
     }
-
-    function renderAll() {
-        renderClients();
-        updateDashboard();
-    }
-
-    addClientForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-
-        const clientName = document.getElementById('client-name').value.trim();
-
-        if (!clientName) {
-            validationMessage.textContent = 'Client Name is required.';
-            return;
-        }
-
-        const newClient = {
-            id: Date.now(),
-            name: clientName,
-            type: document.getElementById('client-type').value,
-            status: document.getElementById('status').value,
-            location: document.getElementById('location').value,
-            contactPerson: document.getElementById('contact-person').value,
-            email: document.getElementById('contact-email').value,
-            phone: document.getElementById('contact-phone').value,
-            target: document.getElementById('monthly-target').value,
-            nextVisit: document.getElementById('next-visit-date').value,
-            notes: document.getElementById('notes').value,
-        };
-
-        clients.push(newClient);
-        renderAll();
-        closeModal();
-    });
 
     function renderClients() {
         clientList.innerHTML = '';
@@ -153,6 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function renderAll() {
+        renderClients();
+        updateDashboard();
+    }
+
     clientList.addEventListener('click', (event) => {
         if (event.target.classList.contains('add-order-btn')) {
             const card = event.target.closest('.client-card');
@@ -160,4 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
             openOrderModal(clientId);
         }
     });
+
+    // Initial load
+    loadData();
 });
